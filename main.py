@@ -12,8 +12,6 @@ def on_leave(event, widget):
     widget.config(bg="#85C1E9", fg="black")
 
 def main():
-    attempts = 3
-
     # Create root and other GUI components
     root, enrollment_entry, name_entry = create_main_window()
     check_csv_file()
