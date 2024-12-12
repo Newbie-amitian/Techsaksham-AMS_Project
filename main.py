@@ -1,9 +1,11 @@
 import tkinter as tk
+import sys
+import os
 from tkinter import messagebox
 from gui import create_main_window
 from training import take_images, train_images
 from testing import automatic_attendance, manually_fill_attendance
-from utils import check_csv_file, check_registered_students, check_for_registration_conflicts
+from utils import check_csv_file, check_registered_students
 
 def on_enter(event, widget):
     widget.config(bg="#5A9FD4", fg="white")
@@ -25,7 +27,7 @@ def main():
         "activebackground": "#3498DB",
         "activeforeground": "white",
     }
-
+    
     # Create buttons with specific placements (as in File 1)
     take_images_btn = tk.Button(root, text="Capture Images", command=lambda: take_images(enrollment_entry, name_entry), **button_config)
     take_images_btn.place(x=50, y=200)
