@@ -48,7 +48,7 @@ def take_images(enrollment_entry, name_entry):
         if not os.path.exists(user_directory):
             os.makedirs(user_directory)
 
-        cam = cv2.VideoCapture(1)
+        cam = cv2.VideoCapture(0)
         sample_num = 0
         frame_count = 0  # Counter to control the animation timing
 
@@ -107,10 +107,6 @@ def take_images(enrollment_entry, name_entry):
             messagebox.showwarning("Incomplete Capture", "Captured fewer than 150 images.")
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
-
-
-
-
 
 def train_images(enrollment_entry, name_entry):
     enrollment = enrollment_entry.get()
