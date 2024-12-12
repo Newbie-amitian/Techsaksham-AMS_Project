@@ -5,7 +5,7 @@ def create_main_window():
     # Create the main window
     root = tk.Tk()
     root.title("Attendance Management System using Face Recognition")
-    root.geometry("700x450")
+    root.geometry("700x390")
     root.configure(bg="#F8F9F9")
 
     # Title Label
