@@ -10,7 +10,7 @@ import tkinter as tk
 from tkinter import ttk
 
 ##### For getting key in form of a file #####
-"""def get_or_create_key():
+def get_or_create_key():
     key_file = "key.key"
     if not os.path.exists(key_file):
         # Generate a new key and save it
@@ -21,13 +21,10 @@ from tkinter import ttk
     else:
         # Load the existing key
         with open(key_file, 'rb') as file:
-            return file.read()"""
-###############################################
+            return file.read()
 
-
-
-SECRET_KEY = b'q_otc5tVVs56Y0uiLzwtu3I-xAPtnq8D3COs_5arrKI='
-cipher = Fernet(SECRET_KEY)
+key = get_or_create_key()
+cipher = Fernet(key)
 
 
 def encrypt_file(filename):
@@ -242,7 +239,7 @@ def enter_subject_window():
 
 
 # Function to check for registration conflicts
-def check_for_registration_conflicts(enrollment, name, attempts=3):
+def check_for_registration_conflicts(enrollment, name):
     if os.path.exists("My_Captures"):
         # Initialize mappings for name-to-enrollment and enrollment-to-name
         name_to_enrollment = {}
@@ -276,17 +273,10 @@ def check_for_registration_conflicts(enrollment, name, attempts=3):
         if (name and name in name_to_enrollment and name_to_enrollment[name] != enrollment) or \
            (enrollment and enrollment in enrollment_to_name and enrollment_to_name[enrollment] != name):
             # If this is the last attempt, quit the program
-            if attempts == 1:
-                sys.exit("Mismatching of credentials detected. Program exiting.")
-            else:
-                # Otherwise, prompt the user with remaining attempts
-                return f"Mismatching of credentials detected. \nLikelihood of fraud (60%).\n{attempts - 1} Attempts remaining."
+            return "Mismatching of credentials detected. \nPlease verify your details."
 
     # If no conflicts are found, assume the user is new
     return None  # No conflict found
-
-
-
 
 
 def get_student_info_by_enrollment(enrollment):
