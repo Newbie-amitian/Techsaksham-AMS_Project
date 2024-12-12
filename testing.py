@@ -4,7 +4,7 @@ import sys
 import tkinter as tk
 import time
 from tkinter import messagebox
-from utils import add_attendance, enter_subject_window, check_for_registration_conflicts, animate_detection_text
+from utils import add_attendance, enter_subject_window, animate_detection_text
 
 if hasattr(sys, '_MEIPASS'):
     base_path = sys._MEIPASS  # Path to temporary folder for bundled files
@@ -24,7 +24,6 @@ for path in [face_cascade_path, eye_cascade_path, eyeglasses_cascade_path]:
 face_cascade = cv2.CascadeClassifier(face_cascade_path)
 eye_cascade = cv2.CascadeClassifier(eye_cascade_path)
 eyeglasses_cascade = cv2.CascadeClassifier(eyeglasses_cascade_path)
-
 
 def enter_subject_window(callback):
     """Create a window to input the subject for attendance."""
@@ -96,10 +95,12 @@ def automatic_attendance():
         recognizer.read(trainer_file_path)  # Read the trainer data
         font = cv2.FONT_HERSHEY_SIMPLEX
 
-        cam = cv2.VideoCapture(1)
+        cam = cv2.VideoCapture(0)
         last_recognized_id = None  # Track the last recognized ID to avoid multiple alerts
         detection_start_time = time.time()
         frame_count = 0
+        animate_detection = True  # Flag to control animation
+        recognized_face_time = 0  # Time when a face was last recognized
 
         while True:
             ret, img = cam.read()
@@ -108,14 +109,16 @@ def automatic_attendance():
                 break
 
             # Animate the text independently without blocking the capturing
-            animate_detection_text(img, frame_count)
-            frame_count += 1
+            if animate_detection:
+                animate_detection_text(img, frame_count)
+                frame_count += 1
 
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
 
             faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=4, minSize=(30,30))
 
+            recognized_face = False
             for (x, y, w, h) in faces:
                 ID, conf = recognizer.predict(gray[y:y + h, x:x + w])
 
@@ -130,15 +133,35 @@ def automatic_attendance():
                         cv2.putText(img, f"Enrollment: {enrollment}", (x, y - 40), font, 1, (0, 255, 0), 2)
                         cv2.putText(img, f"Name: {name}", (x, y - 10), font, 1, (0, 255, 0), 2)
                         cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                        recognized_face = True
+                        recognized_face_time = time.time()
                 else:  # Detection rectangle
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 193, 0), 2)  # Red rectangle for unknown face
-            
+                    
+                    roi_gray = gray[y:y+h, x:x+w]
+
+                    # Try detecting glasses
+                    eyeglasses = eyeglasses_cascade.detectMultiScale(roi_gray)
+                    if len(eyeglasses) > 0:
+                        for (gx, gy, gw, gh) in eyeglasses:
+                            cv2.rectangle(img, (x + gx, y + gy), (x + gx + gw, y + gy + gh), (255, 193, 0), 2)
+                    else:
+                        # If no glasses are detected
+                        eyes = eye_cascade.detectMultiScale(roi_gray)
+                        for (ex, ey, ew, eh) in eyes:
+                            cv2.rectangle(img, (x + ex, y + ey), (x + ex + ew, y + ey + eh), (255, 193, 0), 2)
+
+            if recognized_face:
+                animate_detection = False
+            elif time.time() - recognized_face_time > 1:  # Resume animation after 1 second
+                animate_detection = True
+
             cv2.imshow("Automatic Attendance", img)
 
             # Check if 10 seconds have passed
             if time.time() - detection_start_time > 10:
                 if last_recognized_id is None: # no face was recognized within 10 seconds
-                    messagebox.showwarning("Unknown User!", "User Not Registered.")
+                    messagebox.showwarning("Unknown User!", "User  Not Registered.")
                 break
 
             # Exit when 'q' is pressed
@@ -152,7 +175,7 @@ def automatic_attendance():
         if last_recognized_id is not None:
             messagebox.showinfo("Action", f"Automatic attendance marked for {name} ({enrollment}).")
             if enrollment and name:
-                add_attendance(enrollment, name, subject, "Present")
+                add_attendance(enrollment, name, subject , "Present")
 
     enter_subject_window(process_subject)
 
