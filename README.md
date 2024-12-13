@@ -42,3 +42,8 @@ This project is an Attendance Management System that utilizes face recognition t
 - training.py: Handles image capturing and model training.
 - testing.py: Manages attendance marking through face recognition.
 - utils.py: Contains utility functions for file handling and encryption.
+
+## ⭐️ Support the project
+If you like this project and find it useful, please consider giving it a star! ⭐️
+
+Your support helps to increase the visibility of the project and motivates me to continue improving it. Thank you! 🙏
