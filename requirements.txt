@@ -1,3 +1,5 @@
+Python 3.11.7 
+
 opencv-python
 opencv-python-headless
 Pillow
